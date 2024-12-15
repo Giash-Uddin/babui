@@ -1,13 +1,16 @@
 import {Component, ElementRef, Input, NgZone, ViewChild} from '@angular/core';
 import {BehaviorSubject, fromEvent, Subject, Subscription} from "rxjs";
 import { takeUntil, tap } from 'rxjs/operators';
+import {TextToSvgComponent} from "../text-to-svg/text-to-svg.component";
 
 @Component({
   selector: 'app-image-rotate-resize-reposition',
   templateUrl: './image-rotate-resize-reposition.component.html',
-  styleUrl: './image-rotate-resize-reposition.component.scss'
+  styleUrls: ['./image-rotate-resize-reposition.component.scss']
 })
 export class ImageRotateResizeRepositionComponent {
+
+  @ViewChild(TextToSvgComponent) textToSvgComponent!: TextToSvgComponent;
   @ViewChild('boxWrapper', { static: true })
   boxWrapperElRef!: ElementRef<HTMLDivElement>;
 
@@ -23,6 +26,7 @@ export class ImageRotateResizeRepositionComponent {
 
   @Input() initialTop: number = 50;
   @Input() initialLeft: number = 50;
+  @Input() type: string = '';
 
   @Input() set disabled(disabled: boolean) {
     this.active$.next(!disabled);
@@ -40,6 +44,9 @@ export class ImageRotateResizeRepositionComponent {
   initW : any;
   initH : any;
   initRotate : any;
+
+  scaleX : any=1;
+  scaleY : any=1;
 
   get boxWrapper(): HTMLDivElement {
     return this.boxWrapperElRef.nativeElement;
@@ -64,11 +71,9 @@ export class ImageRotateResizeRepositionComponent {
       if (active) {
         this.enableResizing();
         this.enableDragging();
-        console.log('enabled resizing, dragging', this.id);
       } else {
         this.disableResizing();
         this.disableDrag();
-        console.log('disabled resizing, dragging', this.id);
       }
     });
 
@@ -77,6 +82,8 @@ export class ImageRotateResizeRepositionComponent {
 
     this.resize(this.minWidth, this.minHeight);
     this.repositionElement(this.initialTop, this.initialLeft);
+    this.boxWrapper.style.left = '50%';
+    this.boxWrapper.style.top = '50%';
   }
 
   private repositionElement(x: number, y: number): void {
@@ -85,9 +92,19 @@ export class ImageRotateResizeRepositionComponent {
   }
 
   private resize(width: number, height: number): void {
-    console.log(width, height);
     this.box.style.width = width + 'px';
     this.box.style.height = height + 'px';
+
+    if(this.type=='text' ){
+      this.scaleX=this.scaleX + 0.2;
+      this.scaleY=this.scaleY + 0.2;
+      if (this.textToSvgComponent) {
+        this.textToSvgComponent.init(this.scaleX, this.scaleY);
+        console.log('Scaling Text:', this.scaleX, this.scaleY);
+      } else {
+        console.error('textToSvgComponent is not initialized.');
+      }
+    }
   }
 
   private rotateBox(deg: number): void {
@@ -103,14 +120,12 @@ export class ImageRotateResizeRepositionComponent {
       st.getPropertyValue('-o-transform') ||
       st.getPropertyValue('transform');
     ('none');
-    console.log('tm', tm);
     if (tm != 'none') {
       var values = tm.split('(')[1].split(')')[0].split(',');
       var angle = Math.round(
         // @ts-ignore
         Math.atan2(values[1], values[0]) * (180 / Math.PI)
       );
-      console.log('angle', angle);
       return angle < 0 ? angle + 360 : angle;
     }
     return 0;
@@ -152,22 +167,21 @@ export class ImageRotateResizeRepositionComponent {
   }
 
   enableDragging(): void {
+    this.boxWrapper.style.position='absolute';
     const boxWrapperMouseDown$ = fromEvent<MouseEvent>(
       this.boxWrapper,
       'mousedown',
       { capture: true }
     ).pipe(
       tap((event: any) => {
-        console.log(event);
         // @ts-ignore
-        if (
-          event.target.className.indexOf('dot') > -1 ||
-          event.target.className != 'box'
-        ) {
-          console.log(event.target.className);
-          event.preventDefault();
-          return;
-        }
+        // if (
+        //   event.target.className.indexOf('dot') > -1 || event.target.className != 'box'
+        // ) {
+        //   console.log(event.target.className);
+        //   event.preventDefault();
+        //   return;
+        // }
 
         this.initX = this.boxWrapper.offsetLeft;
         this.initY = this.boxWrapper.offsetTop;
@@ -259,184 +273,12 @@ export class ImageRotateResizeRepositionComponent {
     this.initW = this.box.offsetWidth;
     this.initH = this.box.offsetHeight;
 
-    console.log(
-      this.initX,
-      this.initY,
-      this.mousePressX,
-      this.mousePressY,
-      this.initW,
-      this.initH
-    );
-
     this.initRotate = this.getCurrentRotation(this.boxWrapper);
-    console.log(this.initRotate);
     let initRadians = (this.initRotate * Math.PI) / 180;
-    console.log(initRadians);
     let cosFraction = Math.cos(initRadians);
     let sinFraction = Math.sin(initRadians);
-    console.log(Math.cos(initRadians), Math.sin(initRadians));
-    console.log(Math.cos(this.initRotate), Math.sin(this.initRotate));
-
-    const eventMoveHandler = (event : any) => {
-      // debugger;
-      let wDiff = event.clientX - this.mousePressX;
-      let hDiff = event.clientY - this.mousePressY;
-      let rotatedWDiff = cosFraction * wDiff + sinFraction * hDiff;
-      let rotatedHDiff = cosFraction * hDiff - sinFraction * wDiff;
-
-      let newW = this.initW,
-        newH = this.initH,
-        newX = this.initX,
-        newY = this.initY;
-
-      const cx = this.initX + this.initW / 2;
-      const cy = this.initY + this.initH / 2;
-      const bottomRightX = this.mousePressX;
-      const bottomRightY = this.mousePressY;
-      const rotatedA = this.rotate(
-        this.initX,
-        this.initY,
-        cx,
-        cy,
-        -this.initRotate
-      );
-      const newCenter = [
-        (rotatedA[0] + bottomRightX) / 2,
-        (rotatedA[1] + bottomRightY) / 2,
-      ];
-      const newTopLeft = this.rotate(
-        rotatedA[0],
-        rotatedA[1],
-        newCenter[0],
-        newCenter[1],
-        -this.initRotate
-      );
-      const newBottomRight = this.rotate(
-        bottomRightX,
-        bottomRightY,
-        newCenter[0],
-        newCenter[1],
-        -this.initRotate
-      );
-
-      console.log(newTopLeft, newBottomRight);
-
-      // if (xResize) {
-      //   if (left) {
-      //     newW = initW - rotatedWDiff;
-      //     if (newW < minWidth) {
-      //       newW = minWidth;
-      //       rotatedWDiff = initW - minWidth;
-      //     }
-      //   } else {
-      //     newW = initW + rotatedWDiff;
-      //     if (newW < minWidth) {
-      //       newW = minWidth;
-      //       rotatedWDiff = minWidth - initW;
-      //     }
-      //   }
-      //   newX += 0.5 * rotatedWDiff * cosFraction;
-      //   newY += 0.5 * rotatedWDiff * sinFraction;
-      // }
-
-      // if (yResize) {
-      //   if (top) {
-      //     newH = initH - rotatedHDiff;
-      //     if (newH < minHeight) {
-      //       newH = minHeight;
-      //       rotatedHDiff = initH - minHeight;
-      //     }
-      //   } else {
-      //     newH = initH + rotatedHDiff;
-      //     if (newH < minHeight) {
-      //       newH = minHeight;
-      //       rotatedHDiff = minHeight - initH;
-      //     }
-      //   }
-      //   newX -= 0.5 * rotatedHDiff * sinFraction;
-      //   newY += 0.5 * rotatedHDiff * cosFraction;
-      // }
-
-      // console.log(
-      //   this.initX,
-      //   this.initY,
-      //   this.mousePressX,
-      //   this.mousePressY,
-      //   this.initW,
-      //   this.initH
-      // );
-      // console.log(wDiff, hDiff, rotatedWDiff, rotatedHDiff);
-
-      // calculate new width and height
-      if (xResize) {
-        if (left) {
-          newW = this.initW - rotatedWDiff;
-        } else {
-          newW = this.initW + rotatedWDiff;
-        }
-        if (newW < this.minWidth) {
-          newW = this.minWidth;
-        }
-      }
-
-      if (yResize) {
-        if (top) {
-          newH = this.initH - rotatedHDiff;
-        } else {
-          newH = this.initH + rotatedHDiff;
-        }
-        if (newH < this.minHeight) {
-          newH = this.minHeight;
-        }
-      }
-
-      // constrain aspect ratio, if a corner is being dragged
-      let scale;
-      if (xResize && yResize) {
-        scale = Math.max(newW / this.initW, newH / this.initH);
-        newW = scale * this.initW;
-        newH = scale * this.initH;
-      }
-
-      // recalculate position
-      if (xResize) {
-        if (left) {
-          rotatedWDiff = this.initW - newW;
-        } else {
-          rotatedWDiff = newW - this.initW;
-        }
-        newX += 0.5 * rotatedWDiff * cosFraction;
-        newY += 0.5 * rotatedWDiff * sinFraction;
-      }
-
-      if (yResize) {
-        if (top) {
-          rotatedHDiff = this.initH - newH;
-        } else {
-          rotatedHDiff = newH - this.initH;
-        }
-        newX -= 0.5 * rotatedHDiff * sinFraction;
-        newY += 0.5 * rotatedHDiff * cosFraction;
-      }
-
-      // console.log(newW, newH, newX, newY);
-
-      // rectangle.x = newTopLeft[0];
-      // rectangle.y = newTopLeft[1];
-      // rectangle.width = newBottomRight[0] - newTopLeft[0];
-      // rectangle.height = newBottomRight[1] - newTopLeft[1];
-
-      // this.resize(
-      //   newBottomRight[0] - newTopLeft[0],
-      //   newBottomRight[1] - newTopLeft[1]
-      // );
-      // this.repositionElement(newTopLeft[0], newTopLeft[1]);
-      // this.resize(newW, newH);
-      // this.repositionElement(newX, newY);
-    };
 
     const adjustHandler = (event : any) => {
-      console.log(event, this.initX, this.initY, this.initH, this.initW);
       const cx = this.initX + this.initW / 2;
       const cy = this.initY + this.initH / 2;
       const bottomRightX = event.clientX;
@@ -453,8 +295,6 @@ export class ImageRotateResizeRepositionComponent {
         (rotatedA[1] + bottomRightY) / 2,
       ];
 
-      console.log(rotatedA, newCenter);
-
       const newTopLeft = this.rotate(
         rotatedA[0],
         rotatedA[1],
@@ -469,15 +309,6 @@ export class ImageRotateResizeRepositionComponent {
         newCenter[1],
         this.initRotate
       );
-
-      console.log(newTopLeft, newBottomRight);
-
-      // console.log(newW, newH, newX, newY);
-
-      // rectangle.x = newTopLeft[0];
-      // rectangle.y = newTopLeft[1];
-      // rectangle.width = newBottomRight[0] - newTopLeft[0];
-      // rectangle.height = newBottomRight[1] - newTopLeft[1];
 
       this.resize(
         newBottomRight[0] - newTopLeft[0],
@@ -511,6 +342,11 @@ export class ImageRotateResizeRepositionComponent {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.unsubscribe();
+  }
+
+  ngAfterViewInit() {
+    // Ensure the ViewChild reference is ready
+    console.log('textToSvgComponent initialized:', this.textToSvgComponent);
   }
 
 }

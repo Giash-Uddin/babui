@@ -5,10 +5,20 @@
       <mat-card-content>
         <div [ngStyle]="productStyles">
           <!--          <img src="{{ products.image }}" class="w-100" alt="">-->
-          <app-text-to-svg *ngIf="isTextDisplayable" [text]="selectedText" [fontColor]="selectedColor" [fontFamity]="selectedFont"></app-text-to-svg>
-          <div style="top:50%;left:80%;border: 1px solid green; hieght:100px; width: 100px;">
-            <app-image-preview [logoImageSrc]="logoImageSrc"></app-image-preview>
-          </div>
+
+            <app-image-rotate-resize-reposition *ngIf="isTextDisplayable"
+              id="1"
+              [minWidth]="100"
+              [minHeight]="100"
+              [initialTop]="50"
+              [initialLeft]="100"
+              [type]="'text'"
+            >
+              <app-text-to-svg  [text]="selectedText" [fontColor]="selectedColor" [fontFamity]="selectedFont" [scaleX]="scaleX" [scaleY]="scaleY"></app-text-to-svg>
+            </app-image-rotate-resize-reposition>
+
+          <app-image-preview *ngIf="imageContainerViewable" [logoImageSrc]="logoImageSrc"></app-image-preview>
+
         </div>
         <div>
           <p class="fs-18 lh-lg fw-medium">
@@ -21,7 +31,7 @@
         </div>
 
       </mat-card-content>
-      <mat-card-content>
+      <mat-card-content *ngIf="addTextEnable">
         <mat-grid-list cols="12">
           <mat-grid-tile [colspan]="5" [rowspan]="1">
             <mat-form-field class="example-full-width">
@@ -32,7 +42,7 @@
             <div class="dropdown dropdown btn-group">
               <mat-form-field>
                 <mat-select [disabled]="false" placeholder="Choose Font" [(ngModel)]="selectedFont" (ngModelChange)="changeFont()">
-                  <mat-option *ngFor="let font of fontOptions" [value]="font.value">{{font.key}}</mat-option>
+                  <mat-option *ngFor="let font of fontOptions" [value]="font.value" style="font-family:'{{font.key}}'">{{font.key}}</mat-option>
                 </mat-select>
               </mat-form-field>
             </div>

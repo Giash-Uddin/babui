@@ -53,10 +53,14 @@ export class CardsComponent implements OnInit {
 
   openModal(product : any=[]) {
     this.products=product;
-    this.dialog.open(ProductModalComponent, {
+    const productModalRefference=this.dialog.open(ProductModalComponent, {
       data: { products : this.products},
     });
     this.showModal = true;
+    productModalRefference.componentInstance.close.subscribe(() => {
+      productModalRefference.close(); // Close the dialog
+      this.showModal = false; // Update your modal visibility state
+    });
   }
 
   closeModal() {
