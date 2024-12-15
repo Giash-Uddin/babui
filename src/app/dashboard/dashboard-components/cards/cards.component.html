@@ -1,0 +1,22 @@
+<!-- Cards -->
+<div class="row">
+  <div class="col-lg-4" *ngFor="let card of cards">
+    <mat-card class="overflow-hidden">
+      <div>
+        <img [src]="card.image" class="w-100" alt="">
+      </div>
+      <mat-card-content>
+        <div>
+          <p class="fs-18 lh-lg fw-medium">
+            {{card.name}}
+          </p>
+          <p class="op-7">
+            {{card.description}}
+          </p>
+          <button mat-flat-button color="{{card.btn}}" class="fw-normal mt-4" (click)="openModal(card)">Design Canvas</button>
+<!--          <app-product-modal *ngIf="showModal" [products]="products" (close)="closeModal()"></app-product-modal>-->
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-btn" (click)="closeModal()">×</button>
+    <mat-card>
+      <mat-card-content>
+        <div [ngStyle]="productStyles">
+          <!--          <img src="{{ products.image }}" class="w-100" alt="">-->
+          <app-text-to-svg *ngIf="isTextDisplayable" [text]="selectedText" [fontColor]="selectedColor" [fontFamity]="selectedFont"></app-text-to-svg>
+          <div style="top:50%;left:80%;border: 1px solid green; hieght:100px; width: 100px;">
+            <app-image-preview [logoImageSrc]="logoImageSrc"></app-image-preview>
+          </div>
+        </div>
+        <div>
+          <p class="fs-18 lh-lg fw-medium">
+            {{products.name}}
+          </p>
+          <p class="op-7">
+            {{products.description}}
+          </p>
+          <!--          <button mat-flat-button color="{{card.btn}}" class="fw-normal mt-4" (click)="openModal()">Design Canvas</button>-->
+        </div>
+
+      </mat-card-content>
+      <mat-card-content>
+        <mat-grid-list cols="12">
+          <mat-grid-tile [colspan]="5" [rowspan]="1">
+            <mat-form-field class="example-full-width">
+              <input matInput placeholder="Write your text"  [(ngModel)]="selectedText" value="">
+            </mat-form-field>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="5" [rowspan]="1">
+            <div class="dropdown dropdown btn-group">
+              <mat-form-field>
+                <mat-select [disabled]="false" placeholder="Choose Font" [(ngModel)]="selectedFont" (ngModelChange)="changeFont()">
+                  <mat-option *ngFor="let font of fontOptions" [value]="font.value">{{font.key}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <div ngx-colors-trigger style="width: 30px;height: 30px;border-radius: 50%"
+                 [style.background]="selectedColor" [(ngModel)]="selectedColor"></div>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <button mat-button class="button" (click)="saveFontProperty()">
+              <mat-icon>save</mat-icon>
+            </button>
+          </mat-grid-tile>
+        </mat-grid-list>
+        <!--        <color-sketch color="#fff" (onChangeComplete)="handleColorChangeComplete($event)"></color-sketch>-->
+        <!--        <p>Selected Color: {{ selectedColor }}</p>-->
+      </mat-card-content>
+      <mat-card-content>
+        <div class="button-container">
+          <input type="file" (change)="onFileSelected($event)" accept="image/*"/>
+          <mat-icon>cloud_upload</mat-icon>
+          <span>Upload</span>s
+          <button mat-button class="button" (click)="onTextItemSelect($event)">
+            <mat-icon>text_fields</mat-icon>
+            <span>Add Text</span>
+          </button>
+
+<!--          <button mat-button class="button">-->
+<!--            <mat-icon>image</mat-icon>-->
+<!--            <span>Add Art</span>-->
+<!--          </button>-->
+        </div>
+        <!--        <mat-grid-list cols="12">-->
+        <!--          <mat-grid-tile [colspan]="4">-->
+        <!--            <mat-icon>cloud_upload</mat-icon>-->
+        <!--            <input type="file" (change)="onFileSelected($event)" accept="image/*" />-->
+        <!--            <span>Upload Image</span>-->
+        <!--          </mat-grid-tile>-->
+        <!--          <mat-grid-tile [colspan]="4">-->
+        <!--            <mat-icon>text_fields</mat-icon>-->
+        <!--            <span>Add Text</span>-->
+        <!--          </mat-grid-tile>-->
+        <!--          <mat-grid-tile [colspan]="4">-->
+        <!--            <mat-icon>collections</mat-icon>-->
+        <!--            <span>Add Art</span>-->
+        <!--          </mat-grid-tile>-->
+        <!--        </mat-grid-list>-->
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>
