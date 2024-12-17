@@ -1,7 +1,12 @@
 <div class="box-wrapper" id="box-wrapper-{{ id }}" #boxWrapper>
   <div class="box" id="box" #box>
     <ng-content></ng-content>
-
+    <img *ngIf="type=='image'"
+         [src]="logoImageSrc"
+      alt=""
+      style="width: 100%; height:100%; object-fit: contain; pointer-events:none"
+    />
+    <app-text-to-svg *ngIf="type=='text'" [text]="text" [fontColor]="fontColor" [fontFamity]="fontFamity" [scaleX]="scaleX" [scaleY]="scaleY"></app-text-to-svg>
     <div [ngStyle]="{ display: (active$ | async) ? '' : 'none' }">
       <div class="dot rotate" id="rotate" #rotate></div>
       <div class="dot left-top" id="left-top"></div>
@@ -12,3 +17,4 @@
     </div>
   </div>
 </div>
+

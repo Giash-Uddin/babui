@@ -5,20 +5,39 @@
       <mat-card-content>
         <div [ngStyle]="productStyles">
           <!--          <img src="{{ products.image }}" class="w-100" alt="">-->
+          <div class="design-container">
 
             <app-image-rotate-resize-reposition *ngIf="isTextDisplayable"
-              id="1"
-              [minWidth]="100"
-              [minHeight]="100"
-              [initialTop]="50"
-              [initialLeft]="100"
-              [type]="'text'"
+                                                id="text-1"
+                                                [minWidth]="100"
+                                                [minHeight]="100"
+                                                [initialTop]="50"
+                                                [initialLeft]="100"
+                                                [logoImageSrc]="logoImageSrc"
+                                                [type]="'text'"
+                                                [text]="selectedText"
+                                                [fontColor]="selectedColor"
+                                                [fontFamity]="selectedFont"
             >
-              <app-text-to-svg  [text]="selectedText" [fontColor]="selectedColor" [fontFamity]="selectedFont" [scaleX]="scaleX" [scaleY]="scaleY"></app-text-to-svg>
+              <!--              <app-text-to-svg  [text]="selectedText" [fontColor]="selectedColor" [fontFamity]="selectedFont" [scaleX]="scaleX" [scaleY]="scaleY"></app-text-to-svg>-->
             </app-image-rotate-resize-reposition>
 
-          <app-image-preview *ngIf="imageContainerViewable" [logoImageSrc]="logoImageSrc"></app-image-preview>
+            <app-image-rotate-resize-reposition *ngIf="imageContainerViewable"
+                                                id="image-1"
+                                                [minWidth]="100"
+                                                [minHeight]="100"
+                                                [initialTop]="50"
+                                                [initialLeft]="100"
+                                                [logoImageSrc]="logoImageSrc"
+                                                [type]="'image'"
+                                                [text]="selectedText"
+                                                [fontColor]="selectedColor"
+                                                [fontFamity]="selectedFont"
+            >
+            </app-image-rotate-resize-reposition>
 
+            <!--          <app-image-preview *ngIf="imageContainerViewable" [logoImageSrc]="logoImageSrc"></app-image-preview>-->
+          </div>
         </div>
         <div>
           <p class="fs-18 lh-lg fw-medium">
@@ -35,14 +54,16 @@
         <mat-grid-list cols="12">
           <mat-grid-tile [colspan]="5" [rowspan]="1">
             <mat-form-field class="example-full-width">
-              <input matInput placeholder="Write your text"  [(ngModel)]="selectedText" value="">
+              <input matInput placeholder="Write your text" [(ngModel)]="selectedText" value="">
             </mat-form-field>
           </mat-grid-tile>
           <mat-grid-tile [colspan]="5" [rowspan]="1">
             <div class="dropdown dropdown btn-group">
               <mat-form-field>
-                <mat-select [disabled]="false" placeholder="Choose Font" [(ngModel)]="selectedFont" (ngModelChange)="changeFont()">
-                  <mat-option *ngFor="let font of fontOptions" [value]="font.value" style="font-family:'{{font.key}}'">{{font.key}}</mat-option>
+                <mat-select [disabled]="false" placeholder="Choose Font" [(ngModel)]="selectedFont"
+                            (ngModelChange)="changeFont()">
+                  <mat-option *ngFor="let font of fontOptions" [value]="font.value"
+                              style="font-family:'{{font.key}}'">{{font.key}}</mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
@@ -70,10 +91,10 @@
             <span>Add Text</span>
           </button>
 
-<!--          <button mat-button class="button">-->
-<!--            <mat-icon>image</mat-icon>-->
-<!--            <span>Add Art</span>-->
-<!--          </button>-->
+          <!--          <button mat-button class="button">-->
+          <!--            <mat-icon>image</mat-icon>-->
+          <!--            <span>Add Art</span>-->
+          <!--          </button>-->
         </div>
         <!--        <mat-grid-list cols="12">-->
         <!--          <mat-grid-tile [colspan]="4">-->

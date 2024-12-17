@@ -12,7 +12,7 @@ export class ProductModalComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any) {
   }
   @Output() close = new EventEmitter<void>();
-  @ViewChild(TextToSvgComponent) textToSvgComponent!: TextToSvgComponent;
+  @ViewChild(TextToSvgComponent, { static: false }) textToSvgComponent!: TextToSvgComponent;
   products : any=this.data?.products;
   imageContainerViewable : boolean = false;
   imageSrc: string | ArrayBuffer | null = null;
@@ -48,7 +48,7 @@ export class ProductModalComponent {
     { key : 'Courier New',value : "Courier New"},
     { key: 'Verdana', value: "Verdana" },
     { key : 'Brush Script MT',value : "Brush Script MT"},
-    { key : 'Copperplate',value : "Copperplate, Papyrus, fantasy"},
+    { key : 'Copperplate',value : "Copperplate"},
     { key : 'fantasy',value : "fantasy"},
     { key : 'Papyrus',value : "Papyrus"}
   ];

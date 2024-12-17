@@ -10,7 +10,8 @@ import {TextToSvgComponent} from "../text-to-svg/text-to-svg.component";
 })
 export class ImageRotateResizeRepositionComponent {
 
-  @ViewChild(TextToSvgComponent) textToSvgComponent!: TextToSvgComponent;
+  @ViewChild(TextToSvgComponent, { static: false }) textToSvgComponent!: TextToSvgComponent;
+
   @ViewChild('boxWrapper', { static: true })
   boxWrapperElRef!: ElementRef<HTMLDivElement>;
 
@@ -26,7 +27,11 @@ export class ImageRotateResizeRepositionComponent {
 
   @Input() initialTop: number = 50;
   @Input() initialLeft: number = 50;
+  @Input() logoImageSrc: string = '';
   @Input() type: string = '';
+  @Input() text: string = '';
+  @Input() fontColor: string = '';
+  @Input() fontFamity: string = '';
 
   @Input() set disabled(disabled: boolean) {
     this.active$.next(!disabled);
@@ -100,7 +105,7 @@ export class ImageRotateResizeRepositionComponent {
       this.scaleY=this.scaleY + 0.2;
       if (this.textToSvgComponent) {
         this.textToSvgComponent.init(this.scaleX, this.scaleY);
-        console.log('Scaling Text:', this.scaleX, this.scaleY);
+        this.textToSvgComponent.ngOnInit();
       } else {
         console.error('textToSvgComponent is not initialized.');
       }
@@ -344,9 +349,9 @@ export class ImageRotateResizeRepositionComponent {
     this.destroy$.unsubscribe();
   }
 
-  ngAfterViewInit() {
-    // Ensure the ViewChild reference is ready
-    console.log('textToSvgComponent initialized:', this.textToSvgComponent);
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit called');
+    console.log('textToSvgComponent:', this.textToSvgComponent);
   }
 
 }
